@@ -13,6 +13,7 @@
 <meta name="theme-color" content="#0b1f3a">
 <script type="module" src="/app.js"></script>
 <script type="module" src="/site.js"></script>
+<script type="module" src="/auth.js"></script>
 </head>
 <body>
 <a class="skip" href="#check">Skip to the checker</a>
@@ -33,6 +34,13 @@
       <a href="#scams">Scam types</a>
       <a href="#guide">Safety guide</a>
       <a href="#method">Methodology</a>
+      <span class="nav-auth" id="navGuest">
+        <button type="button" class="nav-text-btn" data-auth="login">Log in</button>
+        <button type="button" class="btn nav-signup" data-auth="signup">Sign up</button>
+      </span>
+      <span class="nav-auth" id="navUser" hidden>
+        <button type="button" class="user-btn" id="userBtn" aria-haspopup="dialog"><span class="avatar" id="avatar" aria-hidden="true"></span><span id="userName"></span></button>
+      </span>
       <a class="btn nav-cta" href="#check">Check an offer</a>
     </nav>
   </div>
@@ -410,5 +418,74 @@
     <p>Scores are risk estimates, not findings of fraud. Always verify with the employer directly.</p>
   </div>
 </footer>
+
+<!-- Log in / sign up -->
+<dialog class="modal" id="authDialog" aria-labelledby="authTitle">
+  <div class="modal-head">
+    <h2 id="authTitle">Welcome back</h2>
+    <button type="button" class="icon-btn" data-close aria-label="Close">×</button>
+  </div>
+  <p class="modal-note" id="authReason" hidden></p>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tabLogin" aria-selected="true" aria-controls="loginForm">Log in</button>
+    <button type="button" role="tab" id="tabSignup" aria-selected="false" aria-controls="signupForm">Sign up</button>
+  </div>
+  <form id="loginForm" class="auth-form" novalidate>
+    <div><label for="loginEmail">Email</label><input type="email" id="loginEmail" autocomplete="username" required maxlength="254"></div>
+    <div><label for="loginPassword">Password</label>
+      <div class="pw-wrap"><input type="password" id="loginPassword" autocomplete="current-password" required maxlength="128"><button type="button" class="pw-toggle" data-toggle="loginPassword">Show</button></div></div>
+    <p class="form-error" id="loginError" role="alert" hidden></p>
+    <button type="submit" class="btn btn-block" id="loginBtn">Log in</button>
+    <p class="form-foot">New here? <button type="button" class="link-btn" data-auth="signup">Create an account</button></p>
+  </form>
+  <form id="signupForm" class="auth-form" novalidate hidden>
+    <div><label for="signupName">Name</label><input type="text" id="signupName" autocomplete="name" required maxlength="80"></div>
+    <div><label for="signupEmail">Email</label><input type="email" id="signupEmail" autocomplete="email" required maxlength="254"></div>
+    <div><label for="signupPassword">Password</label>
+      <div class="pw-wrap"><input type="password" id="signupPassword" autocomplete="new-password" required minlength="10" maxlength="128" aria-describedby="pwHint"><button type="button" class="pw-toggle" data-toggle="signupPassword">Show</button></div>
+      <div class="pw-meter" aria-hidden="true"><span id="pwBar"></span></div>
+      <p class="hint" id="pwHint">At least 10 characters. A short phrase is easiest to remember.</p></div>
+    <p class="form-error" id="signupError" role="alert" hidden></p>
+    <button type="submit" class="btn btn-block" id="signupBtn">Create account</button>
+    <p class="form-foot">Your password is stored only as a salted scrypt hash. Already have an account? <button type="button" class="link-btn" data-auth="login">Log in</button></p>
+  </form>
+</dialog>
+
+<!-- Account -->
+<dialog class="modal modal-wide" id="accountDialog" aria-labelledby="accountTitle">
+  <div class="modal-head">
+    <h2 id="accountTitle">Your account</h2>
+    <button type="button" class="icon-btn" data-close aria-label="Close">×</button>
+  </div>
+  <div class="profile">
+    <span class="avatar avatar-lg" id="avatarLg" aria-hidden="true"></span>
+    <div><strong id="profileName"></strong><div class="hint" id="profileEmail"></div><div class="hint" id="profileSince"></div></div>
+    <button type="button" class="btn secondary" id="logoutBtn">Log out</button>
+  </div>
+  <section class="acct-section">
+    <h3>My checks</h3>
+    <p class="hint">Only the score and categories are saved, never the message itself.</p>
+    <div class="history" id="history"></div>
+  </section>
+  <section class="acct-section">
+    <h3>Change password</h3>
+    <form id="pwForm" class="auth-form inline" novalidate>
+      <div><label for="pwCurrent">Current password</label><input type="password" id="pwCurrent" autocomplete="current-password" required maxlength="128"></div>
+      <div><label for="pwNext">New password</label><input type="password" id="pwNext" autocomplete="new-password" required minlength="10" maxlength="128"></div>
+      <button type="submit" class="btn secondary" id="pwBtn">Update password</button>
+    </form>
+    <p class="form-msg" id="pwMsg" role="status"></p>
+    <p class="hint">Changing your password signs you out on every other device.</p>
+  </section>
+  <section class="acct-section danger-zone">
+    <h3>Delete account</h3>
+    <p class="hint">Deletes your account and your check history. Scam reports you made stay, without your name.</p>
+    <form id="delForm" class="auth-form inline" novalidate>
+      <div><label for="delPassword">Confirm with your password</label><input type="password" id="delPassword" autocomplete="current-password" required maxlength="128"></div>
+      <button type="submit" class="btn danger" id="delBtn">Delete my account</button>
+    </form>
+    <p class="form-msg" id="delMsg" role="status"></p>
+  </section>
+</dialog>
 </body>
 </html>

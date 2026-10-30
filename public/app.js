@@ -1,5 +1,6 @@
 import { analyze, bandOf, regParts, CATS, ADVICE, FREE_MAIL, SHORTENERS } from "/engine.js";
 import { SAMPLES } from "/samples.js";
+import { api, session, onSessionChange, requestLogin } from "/session.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -126,13 +127,6 @@ function setStatus(msg, isErr = false){
 }
 
 // ---------- API ----------
-async function api(path, body){
-  const res = await fetch(path, {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify(body)});
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw Object.assign(new Error(data.message || `Request failed (${res.status})`), {code: data.error});
-  return data;
-}
-
 async function runFull(e){
   e?.preventDefault();
   const input = readInput();
@@ -152,13 +146,17 @@ async function runFull(e){
 }
 
 async function report(){
+  if (!session.user){ requestLogin("Log in to report this scam. Reports are tied to an account so they can't be spammed."); return; }
   $("reportBtn").disabled = true;
   try{
     const data = await api("/api/reports", readInput());
     $("reportStatus").textContent = data.added
       ? `Reported ${data.reported.map(r => r.value).join(", ")}. Thank you.`
       : "You've already reported these details.";
-  }catch(err){ $("reportStatus").textContent = err.message; }
+  }catch(err){
+    if (err.code === "login_required") requestLogin("Your session ended. Log in again to report.");
+    $("reportStatus").textContent = err.message;
+  }
   finally{ $("reportBtn").disabled = false; }
 }
 
@@ -206,6 +204,7 @@ $("form").addEventListener("input", e => {
 });
 $("form").addEventListener("submit", runFull);
 $("reportBtn").addEventListener("click", report);
+onSessionChange(s => { $("reportBtn").textContent = s.user ? "Report as scam" : "Log in to report"; });
 $("shotBtn").addEventListener("click", () => $("shot").click());
 $("shot").addEventListener("change", e => { readShot(e.target.files[0]); e.target.value = ""; });
 document.addEventListener("paste", e => {

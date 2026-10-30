@@ -16,7 +16,8 @@ Paste a job post, recruiter email or WhatsApp/Telegram message. Offer Lens retur
 | **Community reports** | Users can report a scam's email, domain and phone number. Later checks that contain them score higher. |
 | **AI second opinion** | Claude or Groq (free tier) reviews tone, story and consistency. The rules can't assess those. It returns a calibrated score, observations and questions to ask the recruiter. |
 | **Screenshot import** | Upload or paste a chat screenshot and the AI transcribes it. |
-| **Privacy by design** | Messages are never stored, only a SHA-256 hash. Reporters are identified by a salted IP hash. |
+| **Accounts** | Sign up, log in, log out, change password, delete account, and a private "My checks" history. Checking an offer never needs an account. Reporting a scam does, so reports can't be spammed. |
+| **Privacy by design** | Messages are never stored, only a SHA-256 hash. Each report is tied to the reporting account, so one person counts once. |
 
 ## How the score works
 
@@ -67,7 +68,8 @@ src/
   engine.js   rule engine (pure, shared by browser and server)
   enrich.js   domain age and mail-server lookups, cached, fail-safe
   ai.js       AI review (structured JSON) and screenshot OCR via Claude or Groq
-  db.js       SQLite: assessment hashes, community reports, stats
+  auth.js     accounts, scrypt passwords, sessions, CSRF guard
+  db.js       SQLite: users, sessions, assessment hashes, community reports, stats
   server.js   Express API, rate limiting, security headers
 public/       index.html, app.js, styles.css, samples.js
 test/         engine and API tests (node:test, offline, Claude stubbed)
@@ -104,7 +106,7 @@ Open http://localhost:3000.
 npm test
 ```
 
-24 tests cover the scoring rules, enrichment, both AI providers, every API endpoint, report de-duplication and the privacy guarantees. AI and network calls are stubbed, so tests are free and run offline.
+35 tests cover the scoring rules, enrichment, both AI providers, every API endpoint, accounts, sessions, CSRF, lockout, security headers and the privacy guarantees. AI and network calls are stubbed, so tests are free and run offline.
 
 ### Docker
 
@@ -123,8 +125,15 @@ docker run -p 3000:3000 -e GROQ_API_KEY=your-key -v offer-lens-data:/app/data of
 | `GET` | `/api/health` | | `{ok, ai, provider, model}` |
 | `POST` | `/api/assess` | `{text, company?, contact?, link?, useAI?}` | score, band, findings, public signals, AI review |
 | `POST` | `/api/ocr` | `{image: "data:image/png;base64,…"}` | `{text}` |
-| `POST` | `/api/reports` | `{text, company?, contact?, link?}` | identifiers reported |
+| `POST` | `/api/reports` | `{text, company?, contact?, link?}` (signed in) | identifiers reported |
 | `GET` | `/api/stats` | | totals by band, top reported domains |
+| `GET` | `/api/auth/me` | | current user and CSRF token |
+| `POST` | `/api/auth/signup` | `{name, email, password}` | user, CSRF token, session cookie |
+| `POST` | `/api/auth/login` | `{email, password}` | user, CSRF token, session cookie |
+| `POST` | `/api/auth/logout` | | ends the session |
+| `POST` | `/api/auth/password` | `{current, next}` | changes password, signs out other devices |
+| `POST` | `/api/auth/delete` | `{password}` | deletes the account and its history |
+| `GET` | `/api/me/assessments` | | your recent checks (scores only) |
 
 Example:
 
@@ -133,6 +142,24 @@ curl -s localhost:3000/api/assess -H 'content-type: application/json' -d '{"text
 ```
 
 ## Security notes
+
+**Accounts**
+- Passwords are hashed with scrypt (N=2¹⁵, r=8, p=1, 16-byte random salt) and compared in constant time. Plain passwords are never stored or logged.
+- Password rules: 10–128 characters, not a common password, not your email name.
+- Sessions use 32 random bytes in an `HttpOnly`, `SameSite=Lax` cookie (`Secure` in production). Only a SHA-256 of the token is stored, so a database leak doesn't expose live sessions. Sessions last 7 days and rotate on every login.
+- Changing your password signs out every other device. Deleting your account needs your password.
+- Login returns the same message and takes the same time whether or not the email exists, so it can't be used to discover accounts.
+- 5 wrong passwords lock the account for 15 minutes. Logins are rate-limited to 10 per IP per 15 minutes and sign-ups to 5 per IP per hour.
+
+**Cross-site request forgery (CSRF)**
+- Every signed-in write must send the session's CSRF token in `X-CSRF-Token`.
+- All API writes must be JSON and same-origin, which forms on other websites can't produce.
+
+**Headers and transport**
+- Strict Content-Security-Policy (no inline scripts, no framing, no plugins), `X-Frame-Options: DENY`, `nosniff`, `no-referrer`, a locked-down `Permissions-Policy`, `Cross-Origin-Opener-Policy` and `Cross-Origin-Resource-Policy`.
+- `Strict-Transport-Security` when served over HTTPS (`NODE_ENV=production`). API responses are `no-store`.
+
+**Data and abuse**
 
 - The job message is untrusted. The AI prompt marks it as data and tells the model to ignore any instructions inside it.
 - Strict Content-Security-Policy, no inline scripts, `nosniff`, `no-referrer`.

@@ -1,21 +1,21 @@
 import express from "express";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { createHash } from "node:crypto";
 import { analyze, blend, bandOf, regParts, FREE_MAIL, SHORTENERS } from "./engine.js";
 import { enrich as defaultEnrich } from "./enrich.js";
 import { openDb } from "./db.js";
 import * as defaultAi from "./ai.js";
+import { sessionMiddleware, csrfGuard, requireUser, authRouter } from "./auth.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LIMITS = {text: 20000, field: 300, imageBytes: 8 * 1024 * 1024};
 // Big, well-known platforms whose domains appear in real and fake messages alike.
 const NEVER_REPORT = new Set(["google", "linkedin", "naukri", "indeed", "glassdoor", "microsoft", "amazon", "whatsapp", "telegram", "lever", "greenhouse", "myworkdayjobs", "workday", "forms", "youtube"]);
 
-function rateLimiter({windowMs, max}){
+function rateLimiter({windowMs, max, key: keyOf = req => req.ip}){
   const hits = new Map();
   return (req, res, next) => {
-    const now = Date.now(), key = req.ip;
+    const now = Date.now(), key = keyOf(req);
     const h = hits.get(key);
     if (!h || now - h.start > windowMs) hits.set(key, {start: now, n: 1});
     else if (++h.n > max) return res.status(429).json({error: "rate_limited", message: "Too many requests. Try again in a few minutes."});
@@ -44,17 +44,23 @@ function identifiersOf(analysis){
   return out;
 }
 
-export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich, salt = process.env.REPORT_SALT || "offer-lens"} = {}){
+export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich} = {}){
   const app = express();
   app.disable("x-powered-by");
   if (process.env.TRUST_PROXY) app.set("trust proxy", process.env.TRUST_PROXY);
   app.use(express.json({limit: "12mb"}));
   app.use((req, res, next) => {
     res.set({
-      "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+      "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests",
       "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
       "Referrer-Policy": "no-referrer",
+      "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Resource-Policy": "same-origin",
     });
+    if (req.secure || process.env.NODE_ENV === "production") res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    if (req.path.startsWith("/api/")) res.set("Cache-Control", "no-store");
     next();
   });
 
@@ -62,8 +68,13 @@ export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich
   app.use(express.static(path.join(here, "..", "public")));
 
   const aiLimit = rateLimiter({windowMs: 10 * 60 * 1000, max: Number(process.env.AI_RATE_LIMIT || 20)});
-  const reportLimit = rateLimiter({windowMs: 60 * 60 * 1000, max: 30});
-  const reporterId = req => createHash("sha256").update(`${salt}:${req.ip}`).digest("hex").slice(0, 32);
+  const reportLimit = rateLimiter({windowMs: 60 * 60 * 1000, max: 30, key: req => `u${req.user?.id}`});
+  const loginLimit = rateLimiter({windowMs: 15 * 60 * 1000, max: Number(process.env.LOGIN_RATE_LIMIT || 10)});
+  const signupLimit = rateLimiter({windowMs: 60 * 60 * 1000, max: Number(process.env.SIGNUP_RATE_LIMIT || 5)});
+
+  app.use("/api", sessionMiddleware(db), csrfGuard);
+  app.use("/api/auth", authRouter(db, {loginLimit, signupLimit}));
+  app.get("/api/me/assessments", requireUser, (req, res) => res.json({assessments: db.assessmentsFor(req.user.id)}));
 
   app.get("/api/health", (req, res) => res.json({ok: true, ai: ai.aiConfigured(), provider: ai.provider(), model: ai.modelName()}));
 
@@ -94,7 +105,7 @@ export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich
 
       const score = blend(analysis.score, review?.risk_score);
       const band = bandOf(score);
-      const id = db.saveAssessment({text: input.text, score, rulesScore: analysis.score, aiScore: review?.risk_score, band: band.k, categories: analysis.cats});
+      const id = db.saveAssessment({text: input.text, score, rulesScore: analysis.score, aiScore: review?.risk_score, band: band.k, categories: analysis.cats, userId: req.user?.id ?? null});
 
       res.json({
         id,
@@ -120,11 +131,11 @@ export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich
     }
   });
 
-  app.post("/api/reports", reportLimit, (req, res, next) => {
+  app.post("/api/reports", requireUser, reportLimit, (req, res, next) => {
     try{
       const ids = identifiersOf(analyze(readInput(req.body)));
       if (!ids.length) return res.status(400).json({error: "nothing_to_report", message: "No email, website or phone number was found to report."});
-      const added = db.addReports(ids, reporterId(req));
+      const added = db.addReports(ids, `user:${req.user.id}`);
       res.status(201).json({reported: ids, added});
     }catch(err){ next(err); }
   });

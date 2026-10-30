@@ -40,8 +40,9 @@
 
 <!-- Split-screen hero with a featured product preview -->
 <section class="hero gutter">
+  <div class="hero-orbs" aria-hidden="true"><span></span><span></span><span></span></div>
   <div class="inner hero-grid">
-    <div class="hero-copy">
+    <div class="hero-copy" data-reveal>
       <p class="eyebrow">Job offer risk assessment</p>
       <h1>Know if a job offer is real before it costs you.</h1>
       <p class="hero-lede">Paste a job post, recruiter email or WhatsApp message. Offer Lens checks it against 40+ scam signals, the sender’s domain records and community reports, then shows you exactly what looks wrong and what to do next.</p>
@@ -55,6 +56,12 @@
         <li>Every warning explained</li>
       </ul>
     </div>
+    <div class="hero-stage" id="heroStage">
+    <div class="drag-chip c1" data-drag aria-hidden="true"><b>+0.45</b> Registration fee</div>
+    <div class="drag-chip c2" data-drag aria-hidden="true"><b>+0.20</b> Telegram</div>
+    <div class="drag-chip c3" data-drag aria-hidden="true"><b>+0.35</b> ₹8,000 / day</div>
+    <div class="drag-chip c4 ok" data-drag aria-hidden="true"><b>−10%</b> HR round</div>
+    <p class="drag-hint" aria-hidden="true">Drag the chips</p>
     <div class="hero-preview" aria-label="Example assessment">
       <div class="preview-bar"><span></span><span></span><span></span><em>Assessment · Example</em></div>
       <div class="preview-body">
@@ -70,13 +77,14 @@
           <li><span class="badge b-low">Positive</span><span>Mentions an interview round</span><code>HR round</code></li>
         </ul>
       </div>
-    </div>
+      </div>
+  </div>
   </div>
 </section>
 
 <!-- Asymmetrical stats band -->
 <section class="stats gutter" aria-label="Offer Lens activity">
-  <div class="inner stats-grid">
+  <div class="inner stats-grid" data-reveal>
     <div class="stat stat-main">
       <span class="stat-num" id="statChecks">—</span>
       <span class="stat-label">offers checked</span>
@@ -94,13 +102,13 @@
 <!-- The checker: two-column layout -->
 <main class="section gutter" id="check">
   <div class="inner">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <p class="eyebrow">The checker</p>
       <h2>Check an offer</h2>
       <p>The instant check updates as you type. Run the full check to add domain records, community reports and an AI review.</p>
     </div>
 
-    <div class="layout">
+    <div class="layout" data-reveal>
       <form class="pane" id="form" autocomplete="off">
         <div class="pane-head">
           <h2>Message</h2>
@@ -210,12 +218,12 @@
 <!-- Z-shape: alternating explanation rows -->
 <section class="section section-tint gutter" id="how">
   <div class="inner">
-    <div class="section-head center">
+    <div class="section-head center" data-reveal>
       <p class="eyebrow">How it works</p>
       <h2>Three steps, about ten seconds</h2>
     </div>
     <div class="zigzag">
-      <div class="z-row">
+      <div class="z-row" data-reveal>
         <div class="z-text">
           <span class="step">Step 1</span>
           <h3>Paste what you received</h3>
@@ -228,7 +236,7 @@
           </div>
         </div>
       </div>
-      <div class="z-row reverse">
+      <div class="z-row reverse" data-reveal>
         <div class="z-text">
           <span class="step">Step 2</span>
           <h3>See the evidence, not just a verdict</h3>
@@ -240,7 +248,7 @@
           </div>
         </div>
       </div>
-      <div class="z-row">
+      <div class="z-row" data-reveal>
         <div class="z-text">
           <span class="step">Step 3</span>
           <h3>Know what to do next</h3>
@@ -260,51 +268,74 @@
   </div>
 </section>
 
+<!-- Auto-moving carousel: phrases scammers really use -->
+<section class="ticker-section gutter" aria-labelledby="tickerTitle">
+  <div class="inner">
+    <div class="ticker-head" data-reveal>
+      <div><p class="eyebrow">Red flags in the wild</p><h2 id="tickerTitle">Phrases Offer Lens catches</h2></div>
+      <div class="ticker-ctrl">
+        <button type="button" class="round-btn" id="tickPrev" aria-label="Previous">‹</button>
+        <button type="button" class="round-btn" id="tickNext" aria-label="Next">›</button>
+      </div>
+    </div>
+  </div>
+  <div class="ticker" id="ticker" tabindex="0" aria-label="Scam phrases, scrolls automatically">
+    <figure class="quote q-crit"><blockquote>“Pay a one-time registration fee of ₹499, 100% refundable.”</blockquote><figcaption><span class="badge b-crit">Severe</span> Asks you to pay</figcaption></figure>
+    <figure class="quote q-crit"><blockquote>“Share the OTP you receive with our verification officer.”</blockquote><figcaption><span class="badge b-crit">Severe</span> Wants an OTP</figcaption></figure>
+    <figure class="quote q-high"><blockquote>“Earn ₹3,000–8,000 per day by liking YouTube videos.”</blockquote><figcaption><span class="badge b-high">Serious</span> Task scam</figcaption></figure>
+    <figure class="quote q-crit"><blockquote>“We will send you a cheque to buy equipment from our approved vendor.”</blockquote><figcaption><span class="badge b-crit">Severe</span> Fake cheque</figcaption></figure>
+    <figure class="quote q-high"><blockquote>“The interview will be conducted on Telegram via text chat.”</blockquote><figcaption><span class="badge b-high">Serious</span> Chat-only interview</figcaption></figure>
+    <figure class="quote q-caution"><blockquote>“Limited slots available, reply within 24 hours.”</blockquote><figcaption><span class="badge b-caution">Minor</span> Pressure</figcaption></figure>
+    <figure class="quote q-crit"><blockquote>“Receive payments through your own bank account and keep 10%.”</blockquote><figcaption><span class="badge b-crit">Severe</span> Money mule</figcaption></figure>
+    <figure class="quote q-high"><blockquote>“Kindly keep this confidential until onboarding is complete.”</blockquote><figcaption><span class="badge b-high">Serious</span> Secrecy</figcaption></figure>
+  </div>
+</section>
+
 <!-- Card grid: scam types, each loads an example into the checker -->
 <section class="section gutter" id="scams">
   <div class="inner">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <p class="eyebrow">Know the patterns</p>
       <h2>Common job scams, and one real offer</h2>
       <p>Open any example in the checker to see how Offer Lens explains it.</p>
     </div>
     <div class="card-grid">
-      <article class="scam-card">
+      <article class="scam-card" data-reveal data-tilt>
         <div class="card-icon crit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
         <h3>Task and commission scams</h3>
         <p>Paid “like and rate” tasks that turn into prepaid tasks you must fund yourself. Withdrawals then get blocked.</p>
         <ul class="tags"><li>Daily payouts</li><li>Telegram</li><li>Registration fee</li></ul>
         <button class="card-link" type="button" data-sample="Task scam">Try this example</button>
       </article>
-      <article class="scam-card">
+      <article class="scam-card" data-reveal data-tilt>
         <div class="card-icon crit"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M7 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div>
         <h3>Fake cheque and equipment</h3>
         <p>You get a cheque to buy home-office equipment from their “approved vendor”. The cheque bounces after you’ve paid.</p>
         <ul class="tags"><li>Chat-only interview</li><li>Cheque</li><li>Link shortener</li></ul>
         <button class="card-link" type="button" data-sample="Fake cheque">Try this example</button>
       </article>
-      <article class="scam-card">
+      <article class="scam-card" data-reveal data-tilt>
         <div class="card-icon crit"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
         <h3>OTP and identity harvesting</h3>
         <p>A “background verification” that asks for your OTP, ID cards or bank login. It’s used to take over your accounts.</p>
         <ul class="tags"><li>OTP</li><li>Aadhaar / PAN</li><li>Urgent</li></ul>
         <button class="card-link" type="button" data-sample="OTP verification">Try this example</button>
       </article>
-      <article class="scam-card">
+      <article class="scam-card" data-reveal data-tilt>
         <div class="card-icon high"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
         <h3>Payment processing jobs</h3>
         <p>You receive money into your own account and pass it on. That makes you a money mule, and your account can be frozen.</p>
         <ul class="tags"><li>Use your account</li><li>Gift cards</li><li>Secrecy</li></ul>
         <button class="card-link" type="button" data-sample="Payment processor">Try this example</button>
       </article>
-      <article class="scam-card">
+      <article class="scam-card" data-reveal data-tilt>
         <div class="card-icon caution"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg></div>
         <h3>Off-platform recruiters</h3>
         <p>A plausible role, but from a personal Gmail and pushing you to WhatsApp. Not always a scam, so verify before sharing more.</p>
         <ul class="tags"><li>Free email</li><li>WhatsApp</li><li>Immediate joining</li></ul>
         <button class="card-link" type="button" data-sample="Unclear recruiter DM">Try this example</button>
       </article>
-      <article class="scam-card genuine">
+      <article class="scam-card genuine" data-reveal data-tilt>
         <div class="card-icon low"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
         <h3>What a genuine offer looks like</h3>
         <p>Company email, clear duties and requirements, real interview rounds, an official careers portal, and no fees at any stage.</p>
@@ -318,12 +349,12 @@
 <!-- Magazine layout: one featured guide, supporting tips beside it -->
 <section class="section section-tint gutter" id="guide">
   <div class="inner">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <p class="eyebrow">Safety guide</p>
       <h2>Verify any offer in five minutes</h2>
     </div>
     <div class="magazine">
-      <article class="feature">
+      <article class="feature" data-reveal>
         <p class="feature-kicker">The 5-minute routine</p>
         <h3>Check the employer, not the message</h3>
         <ol class="routine">
@@ -334,7 +365,7 @@
           <li><strong>Never pay, never share an OTP.</strong> No genuine employer charges fees or needs your PIN.</li>
         </ol>
       </article>
-      <div class="tips">
+      <div class="tips" data-reveal>
         <article class="tip">
           <h3>“Refundable” means you won’t get it back</h3>
           <p>A refundable deposit or registration fee is the most common job-scam ask.</p>

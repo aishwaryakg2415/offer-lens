@@ -65,7 +65,7 @@ export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich
   const reportLimit = rateLimiter({windowMs: 60 * 60 * 1000, max: 30});
   const reporterId = req => createHash("sha256").update(`${salt}:${req.ip}`).digest("hex").slice(0, 32);
 
-  app.get("/api/health", (req, res) => res.json({ok: true, ai: ai.aiConfigured(), model: ai.aiConfigured() ? ai.MODEL : null}));
+  app.get("/api/health", (req, res) => res.json({ok: true, ai: ai.aiConfigured(), provider: ai.provider(), model: ai.modelName()}));
 
   app.post("/api/assess", (req, res, next) => (req.body?.useAI ? aiLimit(req, res, next) : next()), async (req, res, next) => {
     try{
@@ -87,8 +87,8 @@ export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich
 
       let review = null, aiError = null;
       if (req.body.useAI){
-        if (!ai.aiConfigured()) aiError = {code: "ai_not_configured", message: "Claude isn't configured on this server."};
-        else try{ review = await ai.reviewWithClaude(input, analysis); }
+        if (!ai.aiConfigured()) aiError = {code: "ai_not_configured", message: "No AI provider is configured on this server."};
+        else try{ review = await ai.review(input, analysis); }
         catch(err){ if (!(err instanceof ai.AIError)) throw err; aiError = {code: err.code, message: err.message}; }
       }
 
@@ -112,7 +112,7 @@ export function createApp({db = openDb(), ai = defaultAi, enrich = defaultEnrich
       const m = /^data:(image\/[a-z+]+);base64,([A-Za-z0-9+/=]+)$/.exec(req.body?.image || "");
       if (!m) return res.status(400).json({error: "bad_image", message: "Send the screenshot as a base64 data URL."});
       if (m[2].length * 0.75 > LIMITS.imageBytes) return res.status(413).json({error: "image_too_large", message: "Use an image under 8 MB."});
-      if (!ai.aiConfigured()) return res.status(503).json({error: "ai_not_configured", message: "Screenshot reading needs Claude, which isn't configured on this server."});
+      if (!ai.aiConfigured()) return res.status(503).json({error: "ai_not_configured", message: "Screenshot reading needs an AI provider (Claude or Groq), and none is configured on this server."});
       res.json({text: await ai.extractTextFromImage(m[2], m[1])});
     }catch(err){
       if (err instanceof ai.AIError) return res.status(err.status).json({error: err.code, message: err.message});

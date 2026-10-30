@@ -61,7 +61,7 @@
         </div>
         <div class="block">
           <div class="row" style="justify-content:space-between">
-            <label class="check" id="aiToggle" hidden><input type="checkbox" id="useAI" checked> Include Claude review</label>
+            <label class="check" id="aiToggle" hidden><input type="checkbox" id="useAI" checked> <span id="aiLabel">Include AI review</span></label>
             <button type="submit" class="btn" id="runBtn">Run full check</button>
           </div>
           <div class="privacy"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"></rect><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg><span>The instant check runs in your browser as you type. A full check also looks up domain age, mail servers and community reports, and stores only a hash of your message.</span></div>
@@ -143,7 +143,7 @@
 <footer class="gutter" id="method">
   <div class="inner">
     <strong style="color:var(--ink);font-weight:600">Methodology</strong>
-    <span>Offer Lens evaluates about 40 text signals across 11 risk categories, plus domain registration age, mail-server records and community reports. Signals combine as independent evidence: score = 1 − ∏(1 − weight). Indicators of a genuine hiring process reduce the score by up to 40%. Any request for payment, an OTP, or the movement of money sets a minimum score of 50. With a Claude review, the final score is 55% rules and 45% Claude.</span>
+    <span>Offer Lens evaluates about 40 text signals across 11 risk categories, plus domain registration age, mail-server records and community reports. Signals combine as independent evidence: score = 1 − ∏(1 − weight). Indicators of a genuine hiring process reduce the score by up to 40%. Any request for payment, an OTP, or the movement of money sets a minimum score of 50. With an AI review (Claude or Groq), the final score is 55% rules and 45% AI.</span>
   </div>
 </footer>
 </body>

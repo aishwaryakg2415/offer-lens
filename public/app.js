@@ -6,6 +6,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">"
 const sev = w => w >= .35 ? 3 : w >= .18 ? 2 : 1;
 const SEV = {3: ["Severe", "b-crit"], 2: ["Serious", "b-high"], 1: ["Minor", "b-caution"]};
 const fields = ["text", "company", "contact", "link"];
+const aiName = p => p === "groq" ? "Groq" : "Claude";
 
 let health = {ai: false};
 let full = null;          // last /api/assess response, valid while the input is unchanged
@@ -27,7 +28,7 @@ function render(){
   $("scoreTxt").textContent = shown;
   $("band").className = "badge b-" + b.k; $("band").textContent = b.name;
   $("headline").textContent = input.text.trim() ? b.head : "Paste a message to begin the assessment.";
-  $("scoreline").textContent = (server?.ai ? `Rules ${a.score} × 0.55 + Claude ${server.ai.risk_score} × 0.45  ·  ` : "") +
+  $("scoreline").textContent = (server?.ai ? `Rules ${a.score} × 0.55 + ${aiName(server.ai.provider)} ${server.ai.risk_score} × 0.45  ·  ` : "") +
     `${a.findings.length} findings · base ${a.raw}` + (a.mit ? ` · −${a.mit}% process credit` : "") + (a.critical ? " · floor 50 applied" : "");
 
   // findings
@@ -105,14 +106,14 @@ function renderServerParts(server){
   out.hidden = !(ai || server?.aiError);
   if (ai){
     const li = arr => (arr || []).filter(Boolean).map(x => `<li>${esc(x)}</li>`).join("");
-    out.innerHTML = `<h2>Claude review</h2>
-      <div class="row"><span class="badge b-${bandOf(ai.risk_score).k}">Claude ${ai.risk_score} / 100</span><strong style="font-size:14px">${esc(ai.verdict || "")}</strong></div>
+    out.innerHTML = `<h2>AI review · ${esc(aiName(ai.provider))}</h2>
+      <div class="row"><span class="badge b-${bandOf(ai.risk_score).k}">${esc(aiName(ai.provider))} ${ai.risk_score} / 100</span><strong style="font-size:14px">${esc(ai.verdict || "")}</strong></div>
       <p style="font-size:14px">${esc(ai.summary || "")}</p>
       ${ai.red_flags?.length ? `<div><h3>Observations</h3><ul>${ai.red_flags.map(f => `<li><strong>${esc(f.signal)}.</strong>${f.quote ? ` <span class="quote">${esc(f.quote)}</span>` : ""} ${esc(f.why)}</li>`).join("")}</ul></div>` : ""}
       ${ai.reassuring_signals?.length ? `<div><h3>Mitigating factors</h3><ul>${li(ai.reassuring_signals)}</ul></div>` : ""}
       ${ai.questions_for_recruiter?.length ? `<div><h3>Questions to ask the recruiter</h3><ul>${li(ai.questions_for_recruiter)}</ul></div>` : ""}`;
   } else if (server?.aiError){
-    out.innerHTML = `<h2>Claude review</h2><p class="toast">Not included: ${esc(server.aiError.message)}</p>`;
+    out.innerHTML = `<h2>AI review</h2><p class="toast">Not included: ${esc(server.aiError.message)}</p>`;
   }
 
   $("reportBlock").hidden = !(server && server.score >= 50 && server.reportable?.length);
@@ -138,7 +139,7 @@ async function runFull(e){
   if (!input.text.trim()){ setStatus("Paste a message first.", true); return; }
   const useAI = health.ai && $("useAI").checked;
   $("runBtn").disabled = true;
-  setStatus(useAI ? "Checking public records and asking Claude… this usually takes 10–30 seconds." : "Checking public records…");
+  setStatus(useAI ? `Checking public records and asking ${aiName(health.provider)}… this usually takes 10–30 seconds.` : "Checking public records…");
   try{
     const data = await api("/api/assess", {...input, useAI});
     full = data; fullFor = keyOf(input);
@@ -182,7 +183,7 @@ $("copyBtn").addEventListener("click", () => {
   const lines = [`Offer Lens report: ${s}/100 (${bandOf(s).name})`, input.company ? `Company claimed: ${input.company}` : "", "",
     "Warning signs:", ...a.findings.map(f => `- ${f.label}${f.quotes[0] && f.quotes[0] !== "(no company)" ? ` ("${f.quotes[0]}")` : ""}`),
     ...(a.trust.length ? ["", "Reassuring signs:", ...a.trust.map(t => `- ${t.label}`)] : []),
-    ...(server?.ai ? ["", `Claude: ${server.ai.verdict}. ${server.ai.summary}`] : []),
+    ...(server?.ai ? ["", `${aiName(server.ai.provider)}: ${server.ai.verdict}. ${server.ai.summary}`] : []),
     "", "This is a risk estimate, not a finding of fraud."].filter((l, i, arr) => !(l === "" && arr[i - 1] === ""));
   navigator.clipboard.writeText(lines.join("\n")).then(() => { $("copyStatus").textContent = "Copied."; }, () => { $("copyStatus").textContent = "Copy isn't available here."; });
 });
@@ -215,6 +216,7 @@ document.addEventListener("paste", e => {
 fetch("/api/health").then(r => r.json()).then(h => {
   health = h;
   $("aiToggle").hidden = !h.ai;
+  if (h.ai) $("aiLabel").textContent = `Include ${aiName(h.provider)} review`;
   $("drop").hidden = !h.ai;
 }).catch(() => {});
 

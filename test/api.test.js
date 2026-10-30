@@ -7,10 +7,11 @@ import { SAMPLES } from "../public/samples.js";
 
 // Claude and network lookups are stubbed so the suite runs offline and free.
 const fakeAi = {
-  MODEL: "test-model",
   AIError,
   aiConfigured: () => true,
-  reviewWithClaude: async () => ({risk_score: 90, verdict: "Likely a task scam", summary: "s", red_flags: [], reassuring_signals: [], questions_for_recruiter: []}),
+  provider: () => "groq",
+  modelName: () => "test-model",
+  review: async () => ({risk_score: 90, verdict: "Likely a task scam", summary: "s", red_flags: [], reassuring_signals: [], questions_for_recruiter: []}),
   extractTextFromImage: async () => "transcribed text",
 };
 const fakeEnrich = async () => ({domains: [], findings: [], trust: []});
@@ -28,7 +29,7 @@ const post = (path, body) => fetch(base + path, {method: "POST", headers: {"cont
 
 test("health reports AI availability", async () => {
   const h = await (await fetch(base + "/api/health")).json();
-  assert.deepEqual(h, {ok: true, ai: true, model: "test-model"});
+  assert.deepEqual(h, {ok: true, ai: true, provider: "groq", model: "test-model"});
 });
 
 test("assess without AI returns the rule score", async () => {

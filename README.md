@@ -14,8 +14,8 @@ Paste a job post, recruiter email or WhatsApp/Telegram message. Offer Lens retur
 | **Explainable evidence** | Every finding quotes the matched text, shows its weight and is highlighted in the original message. |
 | **Public signals** | Domain registration age (RDAP), mail-server records (DNS MX), lookalike-brand and cheap-TLD detection. |
 | **Community reports** | Users can report a scam's email, domain and phone number. Later checks that contain them score higher. |
-| **Claude second opinion** | Claude reviews tone, story and consistency. The rules can't assess those. It returns a calibrated score, observations and questions to ask the recruiter. |
-| **Screenshot import** | Upload or paste a chat screenshot and Claude transcribes it. |
+| **AI second opinion** | Claude or Groq (free tier) reviews tone, story and consistency. The rules can't assess those. It returns a calibrated score, observations and questions to ask the recruiter. |
+| **Screenshot import** | Upload or paste a chat screenshot and the AI transcribes it. |
 | **Privacy by design** | Messages are never stored, only a SHA-256 hash. Reporters are identified by a salted IP hash. |
 
 ## How the score works
@@ -25,7 +25,7 @@ base       = 1 − ∏ (1 − wᵢ)                 every finding is independent
 credit     = min(40%, Σ trust signals)       real interview rounds, matching company email, …
 rules      = base × (1 − credit)
 floor      = 50 if it asks for money, an OTP, or to move money
-final      = 0.55 × rules + 0.45 × Claude    when a Claude review is included
+final      = 0.55 × rules + 0.45 × AI        when an AI review is included
 ```
 
 Bands: **0–24** low · **25–49** caution · **50–74** high · **75–100** critical.
@@ -57,7 +57,7 @@ flowchart LR
   S --> E
   S --> P[src/enrich.js<br/>RDAP + DNS MX]
   S --> D[(SQLite<br/>src/db.js)]
-  S --> C[src/ai.js<br/>Claude API]
+  S --> C[src/ai.js<br/>Claude API or Groq]
   B -- POST /api/ocr --> S
   B -- POST /api/reports --> S
 ```
@@ -66,7 +66,7 @@ flowchart LR
 src/
   engine.js   rule engine (pure, shared by browser and server)
   enrich.js   domain age and mail-server lookups, cached, fail-safe
-  ai.js       Claude review (structured JSON output) and screenshot OCR
+  ai.js       AI review (structured JSON) and screenshot OCR via Claude or Groq
   db.js       SQLite: assessment hashes, community reports, stats
   server.js   Express API, rate limiting, security headers
 public/       index.html, app.js, styles.css, samples.js
@@ -85,7 +85,12 @@ npm install
 cp .env.example .env
 ```
 
-Add your `ANTHROPIC_API_KEY` to `.env`. The app still works without it: you get the rules, public signals and community reports, and the Claude review and screenshot import are hidden.
+Add one AI key to `.env`:
+
+- **Free:** `GROQ_API_KEY` from https://console.groq.com/keys
+- **Paid:** `ANTHROPIC_API_KEY` from https://platform.claude.com
+
+The app still works without either: you get the rules, public signals and community reports, and the AI review and screenshot import are hidden.
 
 ```bash
 node --env-file=.env --disable-warning=ExperimentalWarning src/server.js
@@ -99,7 +104,7 @@ Open http://localhost:3000.
 npm test
 ```
 
-20 tests cover the scoring rules, enrichment, every API endpoint, report de-duplication and the privacy guarantees. Claude and network calls are stubbed, so tests are free and run offline.
+24 tests cover the scoring rules, enrichment, both AI providers, every API endpoint, report de-duplication and the privacy guarantees. AI and network calls are stubbed, so tests are free and run offline.
 
 ### Docker
 
@@ -108,15 +113,15 @@ docker build -t offer-lens .
 ```
 
 ```bash
-docker run -p 3000:3000 -e ANTHROPIC_API_KEY=your-key -v offer-lens-data:/app/data offer-lens
+docker run -p 3000:3000 -e GROQ_API_KEY=your-key -v offer-lens-data:/app/data offer-lens
 ```
 
 ## API
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| `GET` | `/api/health` | | `{ok, ai, model}` |
-| `POST` | `/api/assess` | `{text, company?, contact?, link?, useAI?}` | score, band, findings, public signals, Claude review |
+| `GET` | `/api/health` | | `{ok, ai, provider, model}` |
+| `POST` | `/api/assess` | `{text, company?, contact?, link?, useAI?}` | score, band, findings, public signals, AI review |
 | `POST` | `/api/ocr` | `{image: "data:image/png;base64,…"}` | `{text}` |
 | `POST` | `/api/reports` | `{text, company?, contact?, link?}` | identifiers reported |
 | `GET` | `/api/stats` | | totals by band, top reported domains |
@@ -129,7 +134,7 @@ curl -s localhost:3000/api/assess -H 'content-type: application/json' -d '{"text
 
 ## Security notes
 
-- The job message is untrusted. The Claude prompt marks it as data and tells the model to ignore any instructions inside it.
+- The job message is untrusted. The AI prompt marks it as data and tells the model to ignore any instructions inside it.
 - Strict Content-Security-Policy, no inline scripts, `nosniff`, `no-referrer`.
 - Input size limits, plus per-IP rate limits on Claude calls and reports.
 - Well-known platforms (LinkedIn, Naukri, Google, …) can never be added to the report list.

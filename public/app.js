@@ -23,13 +23,16 @@ function render(){
   const a = server ? server.rules : analyze(input);
   const shown = server ? server.score : a.score;
   const b = bandOf(shown);
+  const empty = !input.text.trim();
 
   $("mode").textContent = server ? `Full check #${server.id}` : "Instant check";
   $("marker").style.left = shown + "%";
-  $("scoreTxt").textContent = shown;
+  $("marker").hidden = empty;
+  $("scoreTxt").textContent = empty ? "–" : shown;
+  $("band").hidden = empty;
   $("band").className = "badge b-" + b.k; $("band").textContent = b.name;
-  $("headline").textContent = input.text.trim() ? b.head : "Paste a message to begin the assessment.";
-  $("scoreline").textContent = (server?.ai ? `Rules ${a.score} × 0.55 + ${aiName(server.ai.provider)} ${server.ai.risk_score} × 0.45  ·  ` : "") +
+  $("headline").textContent = empty ? "Paste a message to begin the assessment." : b.head;
+  $("scoreline").textContent = empty ? "" : (server?.ai ? `Rules ${a.score} × 0.55 + ${aiName(server.ai.provider)} ${server.ai.risk_score} × 0.45  ·  ` : "") +
     `${a.findings.length} findings · base ${a.raw}` + (a.mit ? ` · −${a.mit}% process credit` : "") + (a.critical ? " · floor 50 applied" : "");
 
   // findings
@@ -39,7 +42,7 @@ function render(){
     return `<div class="ev-row"><div><span class="badge ${c}">${n}</span></div><div><div class="ev-title">${esc(f.label)}</div><div class="ev-why">${esc(CATS[f.cat])}${src(f)}. ${esc(f.why)}</div></div>${qs(f.quotes)}<div class="ev-w">+${f.w.toFixed(2)}</div></div>`; });
   const tr = a.trust.map(t => `<div class="ev-row"><div><span class="badge b-low">Positive</span></div><div><div class="ev-title">${esc(t.label)}</div><div class="ev-why">${esc(t.why)}</div></div>${qs(t.quotes)}<div class="ev-w">−${Math.round(t.m * 100)}%</div></div>`);
   const head = `<div class="ev-row head"><div>Severity</div><div>Finding</div><div>Matched text</div><div style="text-align:right">Weight</div></div>`;
-  $("evidence").innerHTML = (ev.length || tr.length) ? head + ev.concat(tr).join("") : `<div class="ev-empty">No risk indicators found.</div>`;
+  $("evidence").innerHTML = (ev.length || tr.length) ? head + ev.concat(tr).join("") : `<div class="ev-empty">${empty ? "Findings appear here once you paste a message." : "No risk indicators found."}</div>`;
 
   // categories
   const order = Object.keys(CATS).sort((x, y) => a.cats[y] - a.cats[x]);
@@ -64,9 +67,9 @@ function render(){
   // actions
   const cats = [...new Set(a.findings.map(f => f.cat))].sort((x, y) => a.cats[y] - a.cats[x]);
   const steps = cats.map(c => ADVICE[c]);
-  steps.push("Look for this exact role on the company's official careers page. If it isn't listed there, treat the offer as unverified.");
+  if (!empty) steps.push("Look for this exact role on the company's official careers page. If it isn't listed there, treat the offer as unverified.");
   if (shown >= 50) steps.push("Don't click links in the message. If you've already shared documents or paid, report it (India: 1930 / cybercrime.gov.in) and tell your bank.");
-  $("steps").innerHTML = steps.map(s => `<li>${esc(s)}</li>`).join("");
+  $("steps").innerHTML = steps.map(s => `<li>${esc(s)}</li>`).join("") || `<li class="hint" style="list-style:none;margin-left:-20px">Advice for this message appears here.</li>`;
 
   // verification links
   const q = encodeURIComponent, co = input.company;
@@ -219,4 +222,4 @@ fetch("/api/health").then(r => r.json()).then(h => {
   $("drop").hidden = !h.ai;
 }).catch(() => {});
 
-loadSample("Task scam");
+render();

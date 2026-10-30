@@ -18,6 +18,18 @@ Please fill in the onboarding form at bit.ly/bp-onboard with your full name, add
     text:`Hi, I'm a recruiter for Kestrel Software. We have an urgent opening for a Junior Frontend Developer (React), remote, ₹4.5 LPA.
 
 Responsibilities include building UI components and fixing bugs in our customer dashboard. If interested, please share your updated resume on WhatsApp at +91 98450 1xxxx and we can schedule a call. Immediate joining preferred.`},
+  "OTP verification": {company:"TCS", contact:"tcs.verification.team@outlook.com", link:"",
+    text:`Dear Applicant, you are shortlisted for TCS Associate role. Urgent: complete your background verification within 24 hours or your offer will be cancelled.
+
+Please reply with scanned copies of your Aadhaar card and PAN card, your bank account number and IFSC for salary credit.
+
+You will now receive a 6 digit OTP on your mobile. Share the OTP with our verification officer on WhatsApp +91 90000 12345 to confirm your identity.`},
+  "Payment processor": {company:"Globex Trading", contact:"careers@globex-trading-intl.top", link:"",
+    text:`Remote Payment Processing Assistant, part time, no experience required. Earn $500 per week working from home.
+
+Your role: receive payments from our clients through your own bank account, keep 10% as commission, and transfer the rest to our partners or buy gift cards as instructed.
+
+Do not discuss this position with your bank as transfers are confidential. Start immediately.`},
   "Real-looking listing": {company:"Northwind Analytics Pvt Ltd", contact:"talent@northwindanalytics.com", link:"https://careers.northwindanalytics.com/jobs/1842",
     text:`Graduate Data Analyst – Bengaluru (Hybrid)
 

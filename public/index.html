@@ -9,28 +9,95 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/styles.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2' width='20' height='20' rx='4' fill='%2316191d'/%3E%3Ccircle cx='11' cy='11' r='4.5' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M14.5 14.5 L18 18' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2' width='20' height='20' rx='4' fill='%232563eb'/%3E%3Ccircle cx='11' cy='11' r='4.5' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M14.5 14.5 L18 18' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0b1f3a">
 <script type="module" src="/app.js"></script>
+<script type="module" src="/site.js"></script>
 </head>
 <body>
-<header class="appbar gutter">
-  <div class="inner">
-    <div class="brand">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4" fill="var(--ink)"></rect><circle cx="11" cy="11" r="4.5" fill="none" stroke="var(--surface)" stroke-width="2"></circle><path d="M14.5 14.5 L18 18" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"></path></svg>
+<a class="skip" href="#check">Skip to the checker</a>
+
+<!-- Fixed navigation; collapses to a hidden menu on small screens -->
+<header class="site-nav gutter" id="top">
+  <div class="inner nav-inner">
+    <a class="brand" href="#top" aria-label="Offer Lens home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="var(--brand-accent)"></rect><circle cx="11" cy="11" r="4.5" fill="none" stroke="#ffffff" stroke-width="2"></circle><path d="M14.5 14.5 L18 18" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></path></svg>
       <span>Offer Lens</span>
-    </div>
-    <span class="sep" aria-hidden="true"></span>
-    <span class="ctx">Job offer risk assessment</span>
-    <span class="spacer"></span>
-    <a href="#method">Methodology</a>
+    </a>
+    <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="siteMenu">
+      <span class="sr-only">Menu</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+    </button>
+    <nav class="nav-menu" id="siteMenu" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#scams">Scam types</a>
+      <a href="#guide">Safety guide</a>
+      <a href="#method">Methodology</a>
+      <a class="btn nav-cta" href="#check">Check an offer</a>
+    </nav>
   </div>
 </header>
 
-<main class="gutter">
+<!-- Split-screen hero with a featured product preview -->
+<section class="hero gutter">
+  <div class="inner hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Job offer risk assessment</p>
+      <h1>Know if a job offer is real before it costs you.</h1>
+      <p class="hero-lede">Paste a job post, recruiter email or WhatsApp message. Offer Lens checks it against 40+ scam signals, the sender’s domain records and community reports, then shows you exactly what looks wrong and what to do next.</p>
+      <div class="hero-actions">
+        <a class="btn btn-lg" href="#check">Check an offer</a>
+        <a class="btn btn-lg btn-ghost" href="#how">See how it works</a>
+      </div>
+      <ul class="hero-trust">
+        <li>Free, no sign-up</li>
+        <li>Messages never stored</li>
+        <li>Every warning explained</li>
+      </ul>
+    </div>
+    <div class="hero-preview" aria-label="Example assessment">
+      <div class="preview-bar"><span></span><span></span><span></span><em>Assessment · Example</em></div>
+      <div class="preview-body">
+        <div class="preview-score">
+          <strong>92</strong><small>/ 100</small>
+          <span class="badge b-crit">Critical risk</span>
+        </div>
+        <div class="preview-scale"><span></span><span></span><span></span><span></span><i style="left:92%"></i></div>
+        <ul class="preview-list">
+          <li><span class="badge b-crit">Severe</span><span>Names a fee you must pay</span><code>registration fee</code></li>
+          <li><span class="badge b-crit">Severe</span><span>Website imitates a known brand</span><code>amazon-careers-hiring.xyz</code></li>
+          <li><span class="badge b-high">Serious</span><span>Recruiter uses a free email</span><code>gmail.com</code></li>
+          <li><span class="badge b-low">Positive</span><span>Mentions an interview round</span><code>HR round</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Asymmetrical stats band -->
+<section class="stats gutter" aria-label="Offer Lens activity">
+  <div class="inner stats-grid">
+    <div class="stat stat-main">
+      <span class="stat-num" id="statChecks">—</span>
+      <span class="stat-label">offers checked</span>
+      <p>Every check is counted by its score band only. The message text is never kept.</p>
+    </div>
+    <div class="stat"><span class="stat-num" id="statRisky">—</span><span class="stat-label">rated high or critical risk</span></div>
+    <div class="stat"><span class="stat-num" id="statReports">—</span><span class="stat-label">scam contacts reported</span></div>
+    <div class="stat stat-list">
+      <span class="stat-label">Most reported domains</span>
+      <ol id="statDomains"><li class="muted">No reports yet</li></ol>
+    </div>
+  </div>
+</section>
+
+<!-- The checker: two-column layout -->
+<main class="section gutter" id="check">
   <div class="inner">
-    <div class="pagehead">
-      <h1>New assessment</h1>
-      <p>Check a job post or recruiter message before you share documents, open links or make a payment.</p>
+    <div class="section-head">
+      <p class="eyebrow">The checker</p>
+      <h2>Check an offer</h2>
+      <p>The instant check updates as you type. Run the full check to add domain records, community reports and an AI review.</p>
     </div>
 
     <div class="layout">
@@ -140,10 +207,176 @@
   </div>
 </main>
 
-<footer class="gutter" id="method">
+<!-- Z-shape: alternating explanation rows -->
+<section class="section section-tint gutter" id="how">
   <div class="inner">
-    <strong style="color:var(--ink);font-weight:600">Methodology</strong>
-    <span>Offer Lens evaluates about 40 text signals across 11 risk categories, plus domain registration age, mail-server records and community reports. Signals combine as independent evidence: score = 1 − ∏(1 − weight). Indicators of a genuine hiring process reduce the score by up to 40%. Any request for payment, an OTP, or the movement of money sets a minimum score of 50. With an AI review (Claude or Groq), the final score is 55% rules and 45% AI.</span>
+    <div class="section-head center">
+      <p class="eyebrow">How it works</p>
+      <h2>Three steps, about ten seconds</h2>
+    </div>
+    <div class="zigzag">
+      <div class="z-row">
+        <div class="z-text">
+          <span class="step">Step 1</span>
+          <h3>Paste what you received</h3>
+          <p>A job listing, an email from a “recruiter”, or a screenshot of a WhatsApp or Telegram chat. Add the company name, email address and link if you have them.</p>
+        </div>
+        <div class="z-art">
+          <div class="art-card">
+            <div class="art-line w90"></div><div class="art-line w70"></div><div class="art-line w80"></div>
+            <div class="art-chip-row"><span class="art-chip">hr.jobs2026@gmail.com</span><span class="art-chip">amazon-careers.xyz</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="z-row reverse">
+        <div class="z-text">
+          <span class="step">Step 2</span>
+          <h3>See the evidence, not just a verdict</h3>
+          <p>Every warning quotes the exact words that triggered it and shows how much it counts. Domain age, mail-server records and reports from other users are added on top.</p>
+        </div>
+        <div class="z-art">
+          <div class="art-card">
+            <p class="art-text">To activate your account pay a one-time <mark class="s3">registration fee</mark> of ₹499. Contact HR on <mark class="s2">Telegram</mark> and send your <mark class="s2">Aadhaar card</mark>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="z-row">
+        <div class="z-text">
+          <span class="step">Step 3</span>
+          <h3>Know what to do next</h3>
+          <p>Get steps that match the risks found, links to check the company yourself, and questions a real recruiter can answer but a scammer can’t.</p>
+        </div>
+        <div class="z-art">
+          <div class="art-card">
+            <ul class="art-checks">
+              <li>Don’t pay any fee to get hired</li>
+              <li>Find the company’s careers page yourself</li>
+              <li>Ask for a video interview with a named employee</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Card grid: scam types, each loads an example into the checker -->
+<section class="section gutter" id="scams">
+  <div class="inner">
+    <div class="section-head">
+      <p class="eyebrow">Know the patterns</p>
+      <h2>Common job scams, and one real offer</h2>
+      <p>Open any example in the checker to see how Offer Lens explains it.</p>
+    </div>
+    <div class="card-grid">
+      <article class="scam-card">
+        <div class="card-icon crit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <h3>Task and commission scams</h3>
+        <p>Paid “like and rate” tasks that turn into prepaid tasks you must fund yourself. Withdrawals then get blocked.</p>
+        <ul class="tags"><li>Daily payouts</li><li>Telegram</li><li>Registration fee</li></ul>
+        <button class="card-link" type="button" data-sample="Task scam">Try this example</button>
+      </article>
+      <article class="scam-card">
+        <div class="card-icon crit"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M7 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div>
+        <h3>Fake cheque and equipment</h3>
+        <p>You get a cheque to buy home-office equipment from their “approved vendor”. The cheque bounces after you’ve paid.</p>
+        <ul class="tags"><li>Chat-only interview</li><li>Cheque</li><li>Link shortener</li></ul>
+        <button class="card-link" type="button" data-sample="Fake cheque">Try this example</button>
+      </article>
+      <article class="scam-card">
+        <div class="card-icon crit"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
+        <h3>OTP and identity harvesting</h3>
+        <p>A “background verification” that asks for your OTP, ID cards or bank login. It’s used to take over your accounts.</p>
+        <ul class="tags"><li>OTP</li><li>Aadhaar / PAN</li><li>Urgent</li></ul>
+        <button class="card-link" type="button" data-sample="OTP verification">Try this example</button>
+      </article>
+      <article class="scam-card">
+        <div class="card-icon high"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <h3>Payment processing jobs</h3>
+        <p>You receive money into your own account and pass it on. That makes you a money mule, and your account can be frozen.</p>
+        <ul class="tags"><li>Use your account</li><li>Gift cards</li><li>Secrecy</li></ul>
+        <button class="card-link" type="button" data-sample="Payment processor">Try this example</button>
+      </article>
+      <article class="scam-card">
+        <div class="card-icon caution"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg></div>
+        <h3>Off-platform recruiters</h3>
+        <p>A plausible role, but from a personal Gmail and pushing you to WhatsApp. Not always a scam, so verify before sharing more.</p>
+        <ul class="tags"><li>Free email</li><li>WhatsApp</li><li>Immediate joining</li></ul>
+        <button class="card-link" type="button" data-sample="Unclear recruiter DM">Try this example</button>
+      </article>
+      <article class="scam-card genuine">
+        <div class="card-icon low"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <h3>What a genuine offer looks like</h3>
+        <p>Company email, clear duties and requirements, real interview rounds, an official careers portal, and no fees at any stage.</p>
+        <ul class="tags"><li>Company domain</li><li>Assessment + interview</li><li>No fees</li></ul>
+        <button class="card-link" type="button" data-sample="Real-looking listing">Try this example</button>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Magazine layout: one featured guide, supporting tips beside it -->
+<section class="section section-tint gutter" id="guide">
+  <div class="inner">
+    <div class="section-head">
+      <p class="eyebrow">Safety guide</p>
+      <h2>Verify any offer in five minutes</h2>
+    </div>
+    <div class="magazine">
+      <article class="feature">
+        <p class="feature-kicker">The 5-minute routine</p>
+        <h3>Check the employer, not the message</h3>
+        <ol class="routine">
+          <li><strong>Search the company yourself.</strong> Open its official website from a search engine, not from the link you were sent.</li>
+          <li><strong>Find the role on its careers page.</strong> If the job isn’t listed there, treat it as unverified.</li>
+          <li><strong>Match the email domain.</strong> Real recruiters write from the company’s own domain, not Gmail or a lookalike.</li>
+          <li><strong>Call HR on a listed number.</strong> Use the contact details on the official site to confirm the offer.</li>
+          <li><strong>Never pay, never share an OTP.</strong> No genuine employer charges fees or needs your PIN.</li>
+        </ol>
+      </article>
+      <div class="tips">
+        <article class="tip">
+          <h3>“Refundable” means you won’t get it back</h3>
+          <p>A refundable deposit or registration fee is the most common job-scam ask.</p>
+        </article>
+        <article class="tip">
+          <h3>High pay for easy work is bait</h3>
+          <p>₹3,000 a day for liking videos isn’t a job. It’s the opening of a task scam.</p>
+        </article>
+        <article class="tip">
+          <h3>Pressure is a warning sign</h3>
+          <p>“Reply within 24 hours” stops you checking. A real offer survives a day of questions.</p>
+        </article>
+        <article class="tip alert">
+          <h3>Already paid or shared documents?</h3>
+          <p>India: call <strong class="tabular">1930</strong> or visit cybercrime.gov.in. Tell your bank right away.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer gutter" id="method">
+  <div class="inner footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="var(--brand-accent)"></rect><circle cx="11" cy="11" r="4.5" fill="none" stroke="#ffffff" stroke-width="2"></circle><path d="M14.5 14.5 L18 18" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></path></svg><span>Offer Lens</span></a>
+      <p>Explainable job-scam risk assessment for students and early-career job seekers.</p>
+    </div>
+    <div class="footer-method">
+      <h3>Methodology</h3>
+      <p>Offer Lens evaluates about 40 text signals across 11 risk categories, plus domain registration age, mail-server records and community reports. Signals combine as independent evidence: score = 1 − ∏(1 − weight). Indicators of a genuine hiring process reduce the score by up to 40%. Any request for payment, an OTP, or the movement of money sets a minimum score of 50. With an AI review (Claude or Groq), the final score is 55% rules and 45% AI.</p>
+    </div>
+    <div class="footer-help">
+      <h3>Report a scam</h3>
+      <ul>
+        <li>India: <span class="tabular">1930</span> · cybercrime.gov.in</li>
+        <li>US: reportfraud.ftc.gov</li>
+        <li>UK: actionfraud.police.uk</li>
+      </ul>
+    </div>
+  </div>
+  <div class="inner footer-base">
+    <p>Scores are risk estimates, not findings of fraud. Always verify with the employer directly.</p>
   </div>
 </footer>
 </body>

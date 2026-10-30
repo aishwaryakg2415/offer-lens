@@ -108,6 +108,16 @@ npm test
 
 35 tests cover the scoring rules, enrichment, both AI providers, every API endpoint, accounts, sessions, CSRF, lockout, security headers and the privacy guarantees. AI and network calls are stubbed, so tests are free and run offline.
 
+### Deploy to Render
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/aishwaryakg2415/offer-lens)
+
+1. Click the button (or Render dashboard → **New → Blueprint** → pick this repo). It reads `render.yaml`.
+2. When asked, paste your `GROQ_API_KEY` (free, from https://console.groq.com/keys). Leave `ANTHROPIC_API_KEY` empty unless you have one.
+3. Click **Apply**. The first build takes 2–4 minutes; your site is at `https://offer-lens.onrender.com` or a similar name.
+
+On the free plan the service sleeps after 15 minutes without visitors (the next visit takes about a minute to wake), and its disk is temporary, so accounts and reports reset on each deploy or restart. Add a Render persistent disk mounted at `/opt/render/project/src/data` on a paid plan to keep them.
+
 ### Docker
 
 ```bash

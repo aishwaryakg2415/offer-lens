@@ -1,0 +1,28 @@
+# Render Blueprint: deploys Offer Lens as one web service.
+# Render dashboard → New → Blueprint → pick this repo, or use the Deploy button in the README.
+services:
+  - type: web
+    name: offer-lens
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22.22.0"
+      - key: NODE_ENV
+        value: production
+      # Render terminates HTTPS in front of the app; trust its proxy for client IPs.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DB_PATH
+        value: data/offer-lens.db
+      # Free AI: paste your key from https://console.groq.com/keys when Render asks.
+      - key: GROQ_API_KEY
+        sync: false
+      # Optional paid AI. Leave empty to use Groq.
+      - key: ANTHROPIC_API_KEY
+        sync: false

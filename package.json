@@ -1,0 +1,20 @@
+{
+  "name": "offer-lens",
+  "version": "1.0.0",
+  "description": "Explainable job-scam risk assessment: rule engine, public domain signals, community reports and a Claude second opinion.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "express": "^5.1.0"
+  }
+}

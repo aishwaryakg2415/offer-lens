@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Offer Lens</title>
+<meta name="description" content="Check a job post or recruiter message for scam risk before you share documents, open links or pay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2' width='20' height='20' rx='4' fill='%2316191d'/%3E%3Ccircle cx='11' cy='11' r='4.5' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M14.5 14.5 L18 18' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<script type="module" src="/app.js"></script>
+</head>
+<body>
+<header class="appbar gutter">
+  <div class="inner">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4" fill="var(--ink)"></rect><circle cx="11" cy="11" r="4.5" fill="none" stroke="var(--surface)" stroke-width="2"></circle><path d="M14.5 14.5 L18 18" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"></path></svg>
+      <span>Offer Lens</span>
+    </div>
+    <span class="sep" aria-hidden="true"></span>
+    <span class="ctx">Job offer risk assessment</span>
+    <span class="spacer"></span>
+    <a href="#method">Methodology</a>
+  </div>
+</header>
+
+<main class="gutter">
+  <div class="inner">
+    <div class="pagehead">
+      <h1>New assessment</h1>
+      <p>Check a job post or recruiter message before you share documents, open links or make a payment.</p>
+    </div>
+
+    <div class="layout">
+      <form class="pane" id="form" autocomplete="off">
+        <div class="pane-head">
+          <h2>Message</h2>
+          <select id="sampleSel" aria-label="Load an example message"></select>
+        </div>
+        <div class="block">
+          <div>
+            <label for="text">Job post, email or chat message</label>
+            <textarea id="text" placeholder="Paste the full listing or message" maxlength="20000"></textarea>
+          </div>
+          <div class="row" id="drop" hidden>
+            <input type="file" id="shot" accept="image/png,image/jpeg,image/webp" hidden>
+            <button type="button" class="btn secondary" id="shotBtn">Import from screenshot</button>
+            <span class="hint">or paste an image anywhere on the page</span>
+            <div class="hint" id="shotStatus" style="width:100%" hidden></div>
+          </div>
+        </div>
+        <div class="block">
+          <h2>Sender details <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></h2>
+          <div class="fields">
+            <div><label for="company">Company it claims to represent</label><input type="text" id="company" placeholder="e.g. Infosys" maxlength="300"></div>
+            <div><label for="contact">Recruiter email</label><input type="text" id="contact" placeholder="name@company.com" maxlength="300"></div>
+            <div><label for="link">Application link or website</label><input type="text" id="link" placeholder="https://careers.company.com/…" maxlength="300"></div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="row" style="justify-content:space-between">
+            <label class="check" id="aiToggle" hidden><input type="checkbox" id="useAI" checked> Include Claude review</label>
+            <button type="submit" class="btn" id="runBtn">Run full check</button>
+          </div>
+          <div class="privacy"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"></rect><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg><span>The instant check runs in your browser as you type. A full check also looks up domain age, mail servers and community reports, and stores only a hash of your message.</span></div>
+        </div>
+      </form>
+
+      <section class="pane" id="result" aria-live="polite">
+        <div class="pane-head">
+          <div class="row"><h2>Assessment</h2><span class="mode" id="mode">Instant check</span></div>
+          <div class="row"><span class="toast" id="copyStatus"></span><button class="btn secondary" type="button" id="copyBtn">Copy report</button></div>
+        </div>
+
+        <div class="summary">
+          <div class="score"><span id="scoreTxt">0</span><small> / 100</small></div>
+          <div style="min-width:0">
+            <span class="badge b-low" id="band">Low risk</span>
+            <div class="headline" id="headline"></div>
+            <div class="scoreline" id="scoreline"></div>
+          </div>
+          <div class="scale" aria-hidden="true">
+            <div class="scale-bar"><span></span><span></span><span></span><span></span></div>
+            <div class="marker" id="marker" style="left:0%"></div>
+            <div class="scale-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+        </div>
+
+        <div class="block" id="status" hidden><p class="toast" id="statusTxt"></p></div>
+
+        <div class="block ai" id="aiOut" hidden></div>
+
+        <div class="block">
+          <h2>Findings</h2>
+          <div class="ev-table" id="evidence"></div>
+        </div>
+
+        <div class="block" id="publicBlock" hidden>
+          <h2>Public signals</h2>
+          <div class="signals" id="signals"></div>
+        </div>
+
+        <div class="block">
+          <h2>Risk by category</h2>
+          <div class="cats" id="cats"></div>
+        </div>
+
+        <div class="block">
+          <div class="row" style="justify-content:space-between"><h2 style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Annotated message</h2>
+            <div class="legend"><span><i style="background:var(--mark-1)"></i>Minor</span><span><i style="background:var(--mark-2)"></i>Serious</span><span><i style="background:var(--mark-3)"></i>Severe</span></div></div>
+          <div class="marked" id="marked"></div>
+        </div>
+
+        <div class="block">
+          <h2>Recommended actions</h2>
+          <ol class="steps" id="steps"></ol>
+        </div>
+
+        <div class="block">
+          <h2>Independent verification</h2>
+          <div class="links" id="links"></div>
+          <p class="report-note">Already paid or shared documents? India: call <span class="tabular">1930</span> or report at cybercrime.gov.in. US: reportfraud.ftc.gov. UK: actionfraud.police.uk. Contact your bank immediately.</p>
+        </div>
+
+        <div class="block" id="reportBlock" hidden>
+          <div class="row" style="justify-content:space-between">
+            <div><h2 style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Report this scam</h2><div class="hint">Adds this message’s email, website and phone number to the community list so others get warned.</div></div>
+            <button class="btn secondary" type="button" id="reportBtn">Report as scam</button>
+          </div>
+          <p class="toast" id="reportStatus"></p>
+        </div>
+
+        <div class="block">
+          <p class="disclaimer">This score estimates risk from patterns in the text and public records. It is not a finding that any person or company is committing fraud. Legitimate employers sometimes write poorly and careful scammers sometimes write well, so use the result as a prompt to verify.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="gutter" id="method">
+  <div class="inner">
+    <strong style="color:var(--ink);font-weight:600">Methodology</strong>
+    <span>Offer Lens evaluates about 40 text signals across 11 risk categories, plus domain registration age, mail-server records and community reports. Signals combine as independent evidence: score = 1 − ∏(1 − weight). Indicators of a genuine hiring process reduce the score by up to 40%. Any request for payment, an OTP, or the movement of money sets a minimum score of 50. With a Claude review, the final score is 55% rules and 45% Claude.</span>
+  </div>
+</footer>
+</body>
+</html>

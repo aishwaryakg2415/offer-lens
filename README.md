@@ -4,6 +4,8 @@ Explainable job-scam risk assessment for students and early-career job seekers.
 
 Paste a job post, recruiter email or WhatsApp/Telegram message. Offer Lens returns a 0–100 risk score, the exact phrases behind it, public signals about the sender's domain, and the steps to take next. It does all this before you send documents, click links or pay anything.
 
+**Live app:** https://offer-lens.onrender.com
+
 > Built for **Problem 10: AI Job Scam Detector** (HRTech / Cyber Safety · NLP / Risk Scoring / Evidence Analysis).
 
 ## Features
